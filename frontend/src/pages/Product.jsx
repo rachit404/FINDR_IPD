@@ -40,7 +40,7 @@ const Product = () => {
         <h2 className="text-3xl font-extrabold text-gray-900">
           All Product Categories
         </h2>
-        <div className="mt-8 grid gap-8 lg:grid-cols-3">
+        <div className="grid gap-8 lg:grid-cols-3">
           {categories.map((category, index) => (
             <div
               key={index}
