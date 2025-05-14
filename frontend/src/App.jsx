@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import { CompareProvider } from "./utils/comparecontext";
-import { DataContextProvider } from "./utils/dataContext";
+import { DataProvider } from "./utils/dataContext";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import Home from "./pages/Home";
@@ -18,7 +18,7 @@ import Compare from "./pages/Compare";
 const App = () => {
   return (
     <CompareProvider>
-      <DataContextProvider>
+      <DataProvider>
         <Router>
           <div className="flex flex-col min-h-screen">
             <Navbar />
@@ -51,7 +51,7 @@ const App = () => {
             <Footer />
           </div>
         </Router>
-      </DataContextProvider>
+      </DataProvider>
     </CompareProvider>
   );
 };
