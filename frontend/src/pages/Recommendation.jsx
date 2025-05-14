@@ -2,6 +2,9 @@ import React, { useState, useEffect } from "react";
 import { dropdown2Options, dropdown3Options } from "./dropdown.js";
 import axios from "axios";
 
+import { useContext } from "react";
+import { CompareContext } from "../utils/comparecontext";
+
 const Recommendation = () => {
   const [data, setData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
@@ -27,6 +30,8 @@ const Recommendation = () => {
   );
 
   const [showData, setShowData] = useState(false);
+
+  const { compareList, setCompareList } = useContext(CompareContext);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -150,6 +155,16 @@ const Recommendation = () => {
     }));
   };
 
+  const handleCompare = (item) => {
+    setCompareList((prevList) => {
+      if (!prevList.includes(item)) {
+        return [...prevList, item];
+      }
+      return prevList;
+    });
+    console.log("Compare List:", compareList);
+  };
+
   const renderCards = () => {
     if (!filteredData || filteredData.length === 0) {
       return (
@@ -213,7 +228,21 @@ const Recommendation = () => {
                           {value}
                         </span>
                       </div>
-                    ))}
+                    ))}{" "}
+                  <button
+                    type="submit"
+                    className="w-48 bg-slate-100 text-blue-600 px-4 py-2 rounded-md border border-blue-600 hover:bg-blue-600 hover:text-white transition-all focus:ring-2 focus:ring-blue-500"
+                    onClick={() =>
+                      handleCompare(
+                        item["Model Name"] ||
+                          item["MachineName"] ||
+                          item["Machine Name"] ||
+                          "Unknown Machine"
+                      )
+                    }
+                  >
+                    Add To Compare
+                  </button>
                 </div>
               </div>
               {item["Image URL"] && (
