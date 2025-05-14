@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { dropdown2Options, dropdown3Options } from "./dropdown.js";
 import axios from "axios";
+import ComparisonChatbot from "../components/ComparisonChatbot";
 
 import { useContext } from "react";
 import { CompareContext } from "../utils/comparecontext";
@@ -463,6 +464,7 @@ const Recommendation = () => {
           </div>
         )}
       </div>
+      <ComparisonChatbot />
     </div>
   );
 };

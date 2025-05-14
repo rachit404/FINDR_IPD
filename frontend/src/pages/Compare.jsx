@@ -1,4 +1,4 @@
-import { useContext, useState, useEffect, useCallback } from "react";
+import { useContext, useState, useCallback } from "react";
 import { CompareContext } from "../utils/comparecontext";
 import { DataContext } from "../utils/dataContext";
 import { toast } from "react-hot-toast";
@@ -6,6 +6,7 @@ import { ChevronLeft, ChevronRight, Copy } from "lucide-react";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import ComparisonChatbot from "../components/ComparisonChatbot";
 
 const CustomPrevArrow = ({ onClick }) => (
   <button
@@ -26,201 +27,111 @@ const CustomNextArrow = ({ onClick }) => (
 );
 
 const Compare = () => {
-  const { data, setData } = useContext(DataContext);
+  const { data } = useContext(DataContext);
   const { compareList, setCompareList } = useContext(CompareContext);
   const [removedItems, setRemovedItems] = useState([]);
-  const [undoTimers, setUndoTimers] = useState({});
 
-  // Debug effect to monitor state changes
-  useEffect(() => {
-    console.log("State updated:", {
-      compareList,
-      removedItems,
-      undoTimers,
-    });
-  }, [compareList, removedItems, undoTimers]);
-
-  useEffect(() => {
-    // Cleanup timers when component unmounts
-    return () => {
-      Object.values(undoTimers).forEach((timer) => clearTimeout(timer));
-    };
-  }, [undoTimers]);
-  const handleUndo = useCallback(() => {
-    console.log("handleUndo called", { removedItems, undoTimers }); // Debug log
-
-    if (removedItems.length > 0) {
-      const [lastRemoved, ...remainingRemoved] = removedItems;
-      console.log("Attempting to restore item:", {
-        lastRemoved,
-        remainingRemoved,
-        currentCompareList: compareList,
-      });
-
-      // Update compare list first
-      setCompareList((prevList) => {
-        const newList = [...prevList, lastRemoved];
-        console.log("Updated compare list:", newList);
-        return newList;
-      });
-
-      // Then update removed items
-      setRemovedItems(remainingRemoved);
-
-      // Clear the timer for this item
-      if (undoTimers[lastRemoved]) {
-        clearTimeout(undoTimers[lastRemoved]);
-        setUndoTimers((prev) => {
-          const newTimers = { ...prev };
-          delete newTimers[lastRemoved];
-          return newTimers;
-        });
-      }
-
-      toast(
-        (t) => (
-          <div className="flex items-center gap-2 text-white">
-            <span>✓</span>
-            <span>Item restored successfully!</span>
-          </div>
-        ),
-        {
-          duration: 3000,
-          position: "top-right",
-          style: {
-            background: "#22c55e",
-            color: "#fff",
-            padding: "12px 24px",
-            borderRadius: "8px",
-            boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-            fontSize: "1rem",
-            fontWeight: "500",
-          },
-        }
-      );
-    } else {
-      console.log("No items to restore"); // Debug log
-    }
-  }, [removedItems, undoTimers, setCompareList]);
   const handleRemoveItem = useCallback(
     (machineName) => {
-      console.log("Removing item:", machineName); // Debug log
-
-      // First update the removed items list
-      setRemovedItems((prev) => {
-        console.log("Previous removedItems:", prev); // Debug log
-        const newRemovedItems = [machineName, ...prev];
-        console.log("New removedItems:", newRemovedItems); // Debug log
-        return newRemovedItems;
-      });
-
-      // Then update the compare list
-      setCompareList((prev) => {
-        console.log("Previous compareList:", prev); // Debug log
-        const newCompareList = prev.filter((name) => name !== machineName);
-        console.log("New compareList:", newCompareList); // Debug log
-        return newCompareList;
-      });
-
-      // Clear existing timer if any
-      if (undoTimers[machineName]) {
-        clearTimeout(undoTimers[machineName]);
-      }
-
-      // Set new timer
-      const timer = setTimeout(() => {
-        console.log("Timer expired for:", machineName); // Debug log
-        setRemovedItems((prev) => {
-          const updated = prev.filter((item) => item !== machineName);
-          console.log("Removing item from removedItems after timeout:", {
-            prev,
-            updated,
-            machineName,
-          });
-          return updated;
-        });
-        setUndoTimers((prev) => {
-          const newTimers = { ...prev };
-          delete newTimers[machineName];
-          return newTimers;
-        });
-      }, 5000);
-
-      // Store timer reference
-      setUndoTimers((prev) => ({
-        ...prev,
-        [machineName]: timer,
-      }));
+      setRemovedItems((prev) => [machineName, ...prev]);
+      setCompareList((prev) => prev.filter((name) => name !== machineName));
 
       toast(
         (t) => (
-          <div className="flex items-center gap-4">
-            <span>Item removed</span>
+          <div className="flex items-center gap-4 p-4 bg-white text-gray-800 rounded-lg shadow-md border border-gray-200 max-w-md">
+            {/* Icon */}
+            <div className="flex items-center justify-center w-10 h-10 bg-green-100 text-green-600 rounded-full">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-6 h-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+            </div>
+
+            {/* Content */}
+            <div className="flex-1">
+              <p className="text-sm font-medium">{machineName} removed</p>
+              <p className="text-xs text-gray-500">You can undo this action.</p>
+            </div>
+
+            {/* Undo Button */}
             <button
               onClick={() => {
-                handleUndo();
+                setCompareList((prev) => [machineName, ...prev]);
+                setRemovedItems((prev) =>
+                  prev.filter((item) => item !== machineName)
+                );
                 toast.dismiss(t.id);
               }}
-              className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+              className="px-3 py-1 text-sm font-semibold text-green-600 border border-green-600 rounded hover:bg-green-600 hover:text-white transition duration-200 focus:outline-none focus:ring-2 focus:ring-green-500"
             >
               Undo
             </button>
           </div>
         ),
         {
-          duration: 5000,
-          position: "top-right",
+          duration: 2000,
+          position: "bottom-right",
           style: {
-            background: "#fff",
-            color: "#333",
-            padding: "16px",
-            borderRadius: "8px",
-            boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+            background: "transparent", // Style moved into content box
+            padding: 0,
+            boxShadow: "none",
           },
         }
       );
     },
-    [undoTimers, handleUndo, setCompareList]
+    [setCompareList, setRemovedItems]
   );
 
   const handleClearAll = useCallback(() => {
-    // Store current list before clearing
     const itemsToRemove = [...compareList];
 
-    // Clear compare list
     setCompareList([]);
-
-    // Add all items to removed items
     setRemovedItems((prev) => [...itemsToRemove, ...prev]);
-
-    // Clear any existing timers
-    Object.values(undoTimers).forEach((timer) => clearTimeout(timer));
-
-    // Set new timer for the batch
-    const batchTimer = setTimeout(() => {
-      setRemovedItems((prev) =>
-        prev.filter((item) => !itemsToRemove.includes(item))
-      );
-    }, 5000);
-
-    // Store timer reference for each item
-    const newTimers = itemsToRemove.reduce((acc, item) => {
-      acc[item] = batchTimer;
-      return acc;
-    }, {});
-
-    setUndoTimers(newTimers);
 
     toast(
       (t) => (
-        <div className="flex items-center gap-4">
-          <span>All items cleared</span>
+        <div className="flex items-center gap-4 p-4 bg-white text-gray-800 rounded-lg shadow-lg border border-gray-200 max-w-md">
+          <div className="flex items-center justify-center w-10 h-10 bg-blue-100 text-blue-600 rounded-full">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="w-6 h-6"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 13h6m2 0a2 2 0 100-4H7a2 2 0 100 4h10zm-2 0v6m0-6v-6"
+              />
+            </svg>
+          </div>
+
+          <div className="flex-1">
+            <p className="text-sm font-medium">All items cleared</p>
+            <p className="text-xs text-gray-500">You can undo this action.</p>
+          </div>
+
           <button
             onClick={() => {
-              handleUndo();
+              setCompareList(itemsToRemove);
+              setRemovedItems((prev) =>
+                prev.filter((item) => !itemsToRemove.includes(item))
+              );
               toast.dismiss(t.id);
             }}
-            className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+            className="px-3 py-1 text-sm font-semibold text-blue-600 border border-blue-600 rounded hover:bg-blue-600 hover:text-white transition duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             Undo
           </button>
@@ -230,15 +141,13 @@ const Compare = () => {
         duration: 5000,
         position: "top-right",
         style: {
-          background: "#fff",
-          color: "#333",
-          padding: "16px",
-          borderRadius: "8px",
-          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+          background: "transparent", // background moved to inner div for better styling
+          boxShadow: "none",
+          padding: 0,
         },
       }
     );
-  }, [compareList, undoTimers, handleUndo]);
+  }, [compareList, setCompareList, setRemovedItems]);
 
   const excludedKeys = ["Image URL", "Unnamed: 12"];
 
@@ -292,7 +201,7 @@ const Compare = () => {
           <h2 className="text-3xl font-bold text-gray-900">Compare Machines</h2>
           <button
             onClick={handleClearAll}
-            className="px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-all flex items-center gap-2 border border-red-200"
+            className="group px-4 py-2 rounded-lg border border-red-200 bg-red-50 text-red-600 flex items-center gap-2 transition-all duration-300 ease-in-out hover:bg-red-600 hover:text-white"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -304,6 +213,7 @@ const Compare = () => {
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
+              className="transition-colors duration-300 ease-in-out group-hover:stroke-white"
             >
               <path d="M3 6h18" />
               <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
@@ -312,6 +222,7 @@ const Compare = () => {
             Clear All
           </button>
         </div>
+
         <div className="relative px-8">
           <Slider {...settings} className="compare-slider -mx-4">
             {data
@@ -323,98 +234,97 @@ const Compare = () => {
                     "Unknown Machine"
                 )
               )
-              .map((item, index) => (
-                <div key={index} className="px-4">
-                  <div className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow h-full">
-                    <div className="flex justify-between items-start mb-4">
-                      <h3 className="text-xl font-semibold text-gray-800">
-                        {item["Model Name"] ||
-                          item["MachineName"] ||
-                          item["Machine Name"] ||
-                          "Unknown Machine"}
-                      </h3>
-                      <button
-                        onClick={() => {
-                          const machineName =
-                            item["Model Name"] ||
-                            item["MachineName"] ||
-                            item["Machine Name"] ||
-                            "Unknown Machine";
-                          handleRemoveItem(machineName);
-                        }}
-                        className="text-red-500 hover:text-red-700 p-1"
-                      >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="20"
-                          height="20"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        >
-                          <line x1="18" y1="6" x2="6" y2="18" />
-                          <line x1="6" y1="6" x2="18" y2="18" />
-                        </svg>
-                      </button>
-                    </div>
-                    {item["Image URL"] && (
-                      <div className="relative w-full mb-6 p-4 bg-gradient-to-br from-blue-50 to-gray-50 rounded-xl shadow-inner overflow-hidden group">
-                        <div className="absolute inset-0 bg-white/40 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                        <img
-                          src={item["Image URL"]}
-                          alt={`Image of ${item["Machine Name"]}`}
-                          className="h-64 w-full object-contain transform transition-all duration-500 hover:scale-110 hover:rotate-1 mx-auto"
-                        />
-                      </div>
-                    )}
-                    <div className="space-y-2">
-                      <div className="flex justify-end mb-4">
+              .map((item, index) => {
+                const machineName =
+                  item["Model Name"] ||
+                  item["MachineName"] ||
+                  item["Machine Name"] ||
+                  "Unknown Machine";
+
+                return (
+                  <div key={index} className="px-4">
+                    <div className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow h-full">
+                      <div className="flex justify-between items-start mb-4">
+                        <h3 className="text-xl font-semibold text-gray-800">
+                          {machineName}
+                        </h3>
                         <button
-                          onClick={() => {
-                            const textToCopy = Object.entries(item)
-                              .filter(([key]) => !excludedKeys.includes(key))
-                              .map(([key, value]) => `${key}: ${value}`)
-                              .join("\n");
-                            navigator.clipboard
-                              .writeText(textToCopy)
-                              .then(() => {
-                                toast.success("Specs copied to clipboard!", {
-                                  duration: 2000,
-                                  position: "bottom-right",
-                                });
-                              });
-                          }}
-                          className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800 transition-colors"
+                          onClick={() => handleRemoveItem(machineName)}
+                          className="text-red-500 hover:text-red-700 p-1"
                         >
-                          <Copy className="w-4 h-4" />
-                          <span>Copy specs</span>
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="20"
+                            height="20"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          >
+                            <line x1="18" y1="6" x2="6" y2="18" />
+                            <line x1="6" y1="6" x2="18" y2="18" />
+                          </svg>
                         </button>
                       </div>
-                      {Object.entries(item)
-                        .filter(([key]) => !excludedKeys.includes(key))
-                        .map(([key, value]) => (
-                          <div
-                            key={key}
-                            className="flex justify-between items-center border-b border-gray-100 pb-2"
+
+                      {item["Image URL"] && (
+                        <div className="relative w-full mb-6 p-4 bg-gradient-to-br from-blue-50 to-gray-50 rounded-xl shadow-inner overflow-hidden group">
+                          <div className="absolute inset-0 bg-white/40 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                          <img
+                            src={item["Image URL"]}
+                            alt={`Image of ${machineName}`}
+                            className="h-64 w-full object-contain transform transition-all duration-500 hover:scale-110 hover:rotate-1 mx-auto"
+                          />
+                        </div>
+                      )}
+
+                      <div className="space-y-2">
+                        <div className="flex justify-end mb-4">
+                          <button
+                            onClick={() => {
+                              const textToCopy = Object.entries(item)
+                                .filter(([key]) => !excludedKeys.includes(key))
+                                .map(([key, value]) => `${key}: ${value}`)
+                                .join("\n");
+
+                              navigator.clipboard.writeText(textToCopy);
+                              toast.success(
+                                "Machine details copied to clipboard"
+                              );
+                            }}
+                            className="flex items-center gap-1 text-sm text-gray-600 hover:text-blue-600"
                           >
-                            <span className="text-sm text-gray-600 font-medium capitalize">
-                              {key}:
-                            </span>
-                            <span className="text-sm text-gray-900">
-                              {value}
-                            </span>
-                          </div>
-                        ))}
+                            <Copy className="w-4 h-4" />
+                            Copy Details
+                          </button>
+                        </div>
+
+                        {Object.entries(item)
+                          .filter(([key]) => !excludedKeys.includes(key))
+                          .map(([key, value], i) => (
+                            <div
+                              key={i}
+                              className="flex justify-between border-b py-1 text-sm"
+                            >
+                              <span className="font-medium text-gray-600">
+                                {key}
+                              </span>
+                              <span className="text-gray-800 text-right">
+                                {value || "-"}
+                              </span>
+                            </div>
+                          ))}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
           </Slider>
         </div>
       </div>
+      <ComparisonChatbot />
     </div>
   );
 };
