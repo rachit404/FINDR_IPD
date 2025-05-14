@@ -7,29 +7,29 @@ import chardet
 
 features = {
     "Datasets/CoffeeMachineData.csv":{
-            "numerical":['Capacity (Liters)','Power Output (kW)','Price (INR)','Brew Time (Minutes)','Weight (kg)'],
+            "numerical":['Capacity (Liters)','Power Consumption (kW)','Price (INR)','Brew Time (Minutes)','Weight (kg)'],
             "categorical":['Machine Name','Type','Ease of Use','Brew Quality'],
             "threshold" : 0.50
         },
     "Datasets/Fruit_Veg_Processing_Machines.csv": {
-            "numerical":['Speed (kg/hr)', 'Power Input (kW)', 'Efficiency (%)','Price (INR)'],
+            "numerical":['Speed (kg/hr)', 'Power Consumption (kW)', 'Efficiency (%)','Price (INR)'],
             "categorical":['Machine Name', 'MType', 'MachineMaterial','Manufacturer'],
             "threshold" : 0.30
         },
     "Datasets/grain_machinery_data.csv":{
-            "numerical":['Capacity (tons/hour)', 'Power Output (kW)', 'Price (INR)'],
+            "numerical":['Capacity (tons/hour)', 'Power Consumption (kW)', 'Price (INR)'],
             "categorical":['Grain', 'Machine Name', 'Grain Manufacturer'],
             "threshold" : 0.35
         },
     "Datasets/Ice_Cream_Makers.csv":{
-            "numerical":['Noise Levels','Power(W)','Price (INR)'],
+            "numerical":['Noise Levels','Power Consumption (kW)','Price (INR)'],
             "categorical":['Machine Name', 'Capacity', 'Batch Output'],
             "threshold" : 0.50
         },
     "Datasets/juice_makers.csv":
         {
             "numerical":[
-                        'Motor Power (W)', 'Juicing Speed (RPM)', 'Noise Level (dB)',
+                        'Power Consumption (kW)', 'Juicing Speed (RPM)', 'Noise Level (dB)',
                         'Customer Rating', 'Number of Reviews', 'Price (INR)',
                         ],
             "categorical":['Machine Name', 'Material','Type of Juicer'],

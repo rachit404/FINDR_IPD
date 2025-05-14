@@ -6,7 +6,7 @@ from recommender import findr, datasets
 import json
 
 app = Flask(__name__)
-CORS(app) 
+CORS(app, resources={r"/*": {"origins": "http://localhost:5173"}})
 
 user_input = 'drip'
 findr_col = 'Type'

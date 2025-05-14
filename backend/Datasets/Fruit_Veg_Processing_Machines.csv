@@ -1,4 +1,4 @@
-Machine Name,MType,Speed (kg/hr),Power Input (kW),Efficiency (%),Daily Capacity (kg),Dimensions (cm),Weight (kg),MachineMaterial,Manufacturer,Price (INR),Image URL
+Machine Name,MType,Speed (kg/hr),Power Consumption (kW),Efficiency (%),Daily Capacity (kg),Dimensions (cm),Weight (kg),MachineMaterial,Manufacturer,Price (INR),Image URL
 CL60 Vegetable Processor,Cutting,600,2.2,85,14400,120x60x80,100,Stainless Steel,Robot Coupe,5000,https://tse1.mm.bing.net/th?id=OIP.Wicz8yWtFN4BqjwjldvWjgHaHf
 Fruit Brush Cleaner,Cleaning,800,1.5,90,19200,150x70x90,150,Stainless Steel,Goldcheer Machinery,7500,https://tse1.mm.bing.net/th?id=OIP.mX4jQHofR1MOXjVswyHNmAHaFj
 Vegetable Washer,Washing,1000,2,92,24000,160x75x95,180,Stainless Steel,ProFruit Machinery,8000,https://tse4.mm.bing.net/th?id=OIP.XzFIIcJm0PmDa11UdrtxeAHaHa

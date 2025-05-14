@@ -1,20 +1,23 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { dropdown2Options, dropdown3Options } from "./dropdown.js";
 import axios from "axios";
 import ComparisonChatbot from "../components/ComparisonChatbot";
+import { toast } from "react-hot-toast";
 
-import { useContext } from "react";
 import { CompareContext } from "../utils/comparecontext";
 import { DataContext } from "../utils/dataContext";
 
 const Recommendation = () => {
   const { data, setData } = useContext(DataContext);
+  const { compareList, setCompareList } = useContext(CompareContext);
+
   const [filteredData, setFilteredData] = useState([]);
   const [filters, setFilters] = useState({
     manufacturer: "",
     priceMin: "",
     priceMax: "",
-    machineName: "",
+    powerMin: "",
+    powerMax: "",
     displayCount: "10",
   });
 
@@ -27,13 +30,12 @@ const Recommendation = () => {
   const [dropdown2Choices, setDropdown2Choices] = useState(
     dropdown2Options[dropdownValues.dropdown1]
   );
+
   const [dropdown3Choices, setDropdown3Choices] = useState(
     dropdown3Options[dropdownValues.dropdown1]?.[dropdownValues.dropdown2]
   );
 
   const [showData, setShowData] = useState(false);
-
-  const { compareList, setCompareList } = useContext(CompareContext);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -94,54 +96,42 @@ const Recommendation = () => {
         );
       }
 
-      if (filters.machineName) {
-        filtered = filtered.filter((item) =>
-          (
-            item["Model Name"] ||
-            item["MachineName"] ||
-            item["Machine Name"] ||
-            ""
-          )
-            .toLowerCase()
-            .includes(filters.machineName.toLowerCase())
-        );
-      } // Helper function to parse price
-      const parsePrice = (priceStr) => {
-        if (!priceStr) return 0;
-        // Convert to string and clean up the price string
-        const cleaned = priceStr
-          .toString()
-          .replace(/[^\d.,]/g, "") // Remove everything except digits, dots, and commas
-          .replace(/,/g, "."); // Replace commas with dots
-        // Get the last valid number (in case there are multiple dots)
-        const numbers = cleaned.split(".");
-        const integer = numbers[0];
-        const decimal = numbers[1] || "00";
-        return parseFloat(integer + "." + decimal);
-      };
-
-      if (filters.priceMin) {
-        const minPrice = parseFloat(filters.priceMin);
-        if (!isNaN(minPrice)) {
+      if (filters.powerMin) {
+        const minPower = parseFloat(filters.powerMin);
+        if (!isNaN(minPower)) {
           filtered = filtered.filter((item) => {
-            const price = parsePrice(
-              item.Price || item["Price (Rs)"] || item.price
-            );
-            return price >= minPrice;
+            const power =
+              item["Power Consumption (kW)"] ||
+              item["Power"] ||
+              item["Power (W)"];
+            return power >= minPower;
           });
         }
       }
 
-      if (filters.priceMax) {
-        const maxPrice = parseFloat(filters.priceMax);
-        if (!isNaN(maxPrice)) {
+      if (filters.powerMax) {
+        const maxPower = parseFloat(filters.powerMax);
+        if (!isNaN(maxPower)) {
           filtered = filtered.filter((item) => {
-            const price = parsePrice(
-              item.Price || item["Price (Rs)"] || item.price
-            );
-            return price <= maxPrice;
+            const power =
+              item["Power Consumption (kW)"] ||
+              item["Power"] ||
+              item["Power (W)"];
+            return power <= maxPower;
           });
         }
+      }
+
+      if (filters.priceMin || filters.priceMax) {
+        const minPrice = parseFloat(filters.priceMin) || 0;
+        const maxPrice = parseFloat(filters.priceMax) || Infinity;
+        const getPrice = (item) =>
+          item.Price || item["Price (INR)"] || item["Price (Rs)"] || item.price;
+
+        filtered = filtered.filter((item) => {
+          const price = getPrice(item);
+          return price >= minPrice && price <= maxPrice;
+        });
       }
 
       filtered = filtered.slice(0, parseInt(filters.displayCount));
@@ -160,6 +150,22 @@ const Recommendation = () => {
   const handleCompare = (item) => {
     setCompareList((prevList) => {
       if (!prevList.includes(item)) {
+        toast.success(`${item} added to comparison`, {
+          duration: 4000,
+          position: "top-right",
+          style: {
+            background: "#ecfdf5",
+            color: "#065f46",
+            padding: "14px 20px",
+            borderRadius: "8px",
+            border: "1px solid #a7f3d0",
+            boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+          },
+          iconTheme: {
+            primary: "#10b981",
+            secondary: "#ecfdf5",
+          },
+        });
         return [...prevList, item];
       }
       return prevList;
@@ -293,7 +299,7 @@ const Recommendation = () => {
                       <option value="Grain">Grain Processing</option>
                       <option value="Ice-cream">Ice Cream Maker</option>
                       <option value="Juice">Juice Maker</option>
-                      <option value="Nut">Nut Processing</option>
+                      {/* <option value="Nut">Nut Processing</option> */}
                     </select>
                   </div>
 
@@ -401,19 +407,31 @@ const Recommendation = () => {
                         className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         placeholder="Enter manufacturer name"
                       />
-                    </div>
+                    </div>{" "}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Machine Name
+                        Power Range (KW)
                       </label>
-                      <input
-                        type="text"
-                        name="machineName"
-                        value={filters.machineName}
-                        onChange={handleFilterChange}
-                        className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                        placeholder="Enter machine name"
-                      />
+                      <div className="flex gap-2">
+                        <input
+                          type="number"
+                          name="powerMin"
+                          value={filters.powerMin}
+                          onChange={handleFilterChange}
+                          className="w-1/2 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          placeholder="Min Power"
+                          step="0.1"
+                        />
+                        <input
+                          type="number"
+                          name="powerMax"
+                          value={filters.powerMax}
+                          onChange={handleFilterChange}
+                          className="w-1/2 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          placeholder="Max Power"
+                          step="0.1"
+                        />
+                      </div>
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">

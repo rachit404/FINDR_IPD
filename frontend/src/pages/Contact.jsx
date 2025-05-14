@@ -107,6 +107,7 @@ const Contact = () => {
         from_name: formData.name,
         from_email: formData.email,
         subject: formData.subject || "New Contact Form Submission",
+        sendManufacturerDetails: formData.requestManufacturer || false,
         message: formData.message,
       };
 
@@ -204,7 +205,28 @@ const Contact = () => {
               placeholder="What is this regarding?"
             />
           </div>
-
+          {/* Checkbox */}
+          <div className="mt-4 flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="requestManufacturer"
+              name="requestManufacturer"
+              checked={formData.requestManufacturer || false}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  requestManufacturer: e.target.checked,
+                }))
+              }
+              className="h-4 w-4 text-slate-600 border-gray-300 rounded focus:ring-slate-500"
+            />
+            <label
+              htmlFor="requestManufacturer"
+              className="text-sm text-slate-700"
+            >
+              Request manufacturer details
+            </label>
+          </div>
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">
               Message *
