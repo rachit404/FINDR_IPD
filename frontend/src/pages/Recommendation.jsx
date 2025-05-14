@@ -4,9 +4,10 @@ import axios from "axios";
 
 import { useContext } from "react";
 import { CompareContext } from "../utils/comparecontext";
+import { DataContext } from "../utils/dataContext";
 
 const Recommendation = () => {
-  const [data, setData] = useState([]);
+  const { data, setData } = useContext(DataContext);
   const [filteredData, setFilteredData] = useState([]);
   const [filters, setFilters] = useState({
     manufacturer: "",
