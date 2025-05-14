@@ -10,6 +10,7 @@ import AboutUs from "./pages/AboutUs";
 import Contact from "./pages/Contact";
 import CategoryProducts from "./pages/CategoryProducts";
 import Recommendation1 from "./pages/Recommendation1";
+import Compare from "./pages/Compare";
 
 const App = () => {
   return (
@@ -20,6 +21,7 @@ const App = () => {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/product" element={<Product />} />
+            <Route path="/compare" element={<Compare />} />
             <Route path="/recommendation" element={<Recommendation />} />
             {/* <Route path="/recommendation" element={<Recommendation1 />} /> */}
             <Route path="/blog" element={<Blog />} />
