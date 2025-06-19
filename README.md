@@ -98,4 +98,5 @@ pip install -r requirements.txt
 
 ## 📩 Contact
 
-For suggestions, inquiries, or collaborations, contact [rachit404](https://github.com/rachit404).
+For suggestions, inquiries, or collaborations, contact [rachit404](https://github.com/rachit404), [SwayamShah](https://github.com/swayam-shah-20).
+
